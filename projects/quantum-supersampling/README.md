@@ -27,7 +27,7 @@ The source includes Thai explanations with English quantum terminology. Download
 
 ## Run the example
 
-Run from the portfolio root with its virtual environment.
+Run from the repository root with its virtual environment.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r projects/quantum-supersampling/requirements.txt

@@ -14,7 +14,7 @@ The [Python script](scripts/grover_probability.py) constructs the phase oracle a
 
 ## Generate the plots
 
-Run from the portfolio root.
+Run from the repository root.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r projects/grover/requirements.txt

@@ -1,6 +1,6 @@
 # Learning experiments
 
-Small experiments that support the projects in this portfolio.
+Small experiments that support the projects in this repository.
 
 | Folder | Contents |
 | --- | --- |

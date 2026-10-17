@@ -18,7 +18,7 @@ The `generate_*` and `draw_enhanced_circuits.py` scripts create additional expla
 
 ## Run the demo
 
-Run from the portfolio root.
+Run from the repository root.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r projects/quantum-self-attention/requirements.txt
@@ -31,4 +31,4 @@ PennyLane is required for computation. Qiskit and `pylatexenc` support circuit d
 
 The primary source is [arXiv:2205.05625v2](https://arxiv.org/abs/2205.05625v2). [Quantum Adaptive Self-Attention for Quantum Transformer Models](https://arxiv.org/abs/2504.05336v1) is additional reading, not the implementation target of this demo.
 
-Local PDFs and extracted paper material remain in `references/`, which is excluded from the portfolio's Git tracking. Source links above remain available to readers who clone the repository.
+Local PDFs and extracted paper material remain in `references/`, which is excluded from this repository's Git tracking. Source links above remain available to readers who clone the repository.

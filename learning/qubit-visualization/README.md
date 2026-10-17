@@ -13,7 +13,7 @@ Explore how a qubit state changes under elementary gates.
 
 ## Run an experiment
 
-Run from the portfolio root.
+Run from the repository root.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r learning/qubit-visualization/requirements.txt

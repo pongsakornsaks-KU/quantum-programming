@@ -1,4 +1,4 @@
-# Quantum portfolio
+# Quantum programming
 
 Quantum computing projects and learning experiments. Each project contains its code, example results, and instructions for exploring the work.
 
@@ -11,7 +11,7 @@ Quantum computing projects and learning experiments. Each project contains its c
 | [Quantum self-attention](projects/quantum-self-attention/README.md) | Explore a small quantum self-attention model alongside a classical baseline. | PennyLane, Qiskit, Matplotlib |
 | [Remote-Controlled Randomness](https://github.com/pongsakornsaks-KU/remote-controlled-randomness) | Explore entanglement and randomness through a Qiskit notebook. | Qiskit, Jupyter |
 
-Remote-Controlled Randomness remains in its own repository. This portfolio links to it rather than embedding another Git repository. A local checkout can live at `projects/remote-controlled-randomness/`, which is excluded from this portfolio's Git tracking.
+Remote-Controlled Randomness remains in its own repository. This repository links to it rather than embedding another Git repository. A local checkout can live at `projects/remote-controlled-randomness/`, which is excluded from this repository's Git tracking.
 
 ## Start with a result
 
@@ -52,17 +52,15 @@ quantum/
     fourier-and-sampling/
 ```
 
-The local Remote-Controlled Randomness checkout, reading PDFs, environments, caches, and agent working files are excluded by `.gitignore`. Selected result images remain in the portfolio so visitors can inspect them without running code.
+The local Remote-Controlled Randomness checkout, reading PDFs, environments, caches, and agent working files are excluded by `.gitignore`. Selected result images remain in this repository so visitors can inspect them without running code.
 
-## Prepare a GitHub repository
+## Get the code
 
-Run from this directory when you are ready to create the portfolio's Git history.
+Clone [quantum-programming](https://github.com/pongsakornsaks-KU/quantum-programming), then open the repository directory.
 
 ```powershell
-git init -b main
-git add .
-git status --short
-git diff --cached --stat
+git clone https://github.com/pongsakornsaks-KU/quantum-programming.git
+cd quantum-programming
 ```
 
-Review the staged files before committing. Create a GitHub repository such as `quantum-portfolio`, then use the remote URL GitHub provides.
+Use the setup commands above from this directory.
