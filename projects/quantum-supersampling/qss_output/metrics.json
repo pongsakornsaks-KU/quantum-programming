@@ -1,5 +1,5 @@
 {
-  "input": "C:\\Users\\PetetTan\\Desktop\\quantum\\Origami Totoro-Style Paper Creature.png",
+  "input": "C:\\Users\\PetetTan\\Desktop\\quantum\\projects\\quantum-supersampling\\Origami Totoro-Style Paper Creature.png",
   "output_size": [
     128,
     128
@@ -34,12 +34,8 @@
   "measured_max_error_vs_classical_fraction": 0.0,
   "measured_pixels_matching_classical": 16384,
   "statevector_mode_mae_vs_classical_fraction": 0.0,
-  "elapsed_seconds_including_figures": 3.171202399998947,
-  "self_test": {
-    "counts_checked": 17,
-    "permuted_masks_checked": 17,
-    "max_probability_error_after_permutation": 1.1102230246251565e-16
-  },
+  "elapsed_seconds_including_figures": 1.8557380000002013,
+  "self_test": null,
   "circle_notation": {
     "pixel_xy": [
       64,
@@ -74,11 +70,6 @@
       ]
     ]
   },
-  "circuit_diagrams": [
-    "qpe_circuit.png",
-    "grover_circuit.png",
-    "inverse_qft_circuit.png"
-  ],
   "method": "Qiskit Statevector QPE on full 16-state Grover operator; finite-shot folded-counter mode decoded by quantum calibration",
   "qualification": "Classical bitmap LUT oracle preparation, dense controlled Grover powers, simulator sampling and exact spatial-mask caching; no hardware run or speedup claim."
 }

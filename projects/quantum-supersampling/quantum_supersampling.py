@@ -1,19 +1,19 @@
-﻿"""Quantum supersampling โดยเชื่อมสมการกับ circuit ของ Qiskit.
+﻿"""Estimate pixel brightness with QPE on a 16-state Grover operator.
 
-เริ่มอ่านส่วน quantum ตามลำดับ build_phase_oracle → build_grover_operator →
-build_counting_circuit → counter_distribution. ส่วน main อยู่ท้ายไฟล์.
+Read build_phase_oracle, build_grover_operator, build_counting_circuit,
+and counter_distribution for the quantum pipeline. The CLI is in main.
 
-ข้อมูลหนึ่ง pixel คือ mask แบบ bool ขนาด (4, 4). True หมายถึง subpixel สีขาว.
-เรียงแต่ละแถวต่อกันเป็น basis |x> โดย x = 4 * row + col เช่น [1, 2] คือ |0110>.
-ใช้ 4 subpixel qubits แทน 16 ตำแหน่ง และ counter_bits qubits สำหรับ QPE.
+Each pixel uses a boolean mask of shape (4, 4), where True marks white.
+Subpixel positions use x = 4 * row + col, so mask[1, 2] maps to |0110>.
+Four subpixel qubits represent the 16 positions; counter_bits qubits run QPE.
 
-ถ้ามีสีขาว M ตำแหน่ง จะได้ a = M/16 = sin²(theta), Q = D O มี eigenphase
-±2*theta. QPE ให้ y/2**counter_bits ≈ theta/pi หรือ 1-theta/pi.
-จึงพับผลสองฝั่งเข้าหากัน แล้วแปลงเป็นจำนวนสีขาวด้วย calibration.
+For M white subpixels, a = M/16 = sin(theta)**2. Q = D O has eigenvalues
+exp(+/-2j*theta), so QPE estimates theta/pi or 1-theta/pi.
+Folding combines the two phase branches, and calibration decodes the count.
 
-image_tiles เตรียม bitmap ด้วยวิธี classical. reconstruct ใช้ distribution
-จาก quantum circuit แล้วจำลอง finite shots แบบ classical ทีละ pixel.
-นี่คือ dense statevector simulation ไม่ใช่การอ้าง quantum speedup.
+image_tiles prepares the bitmap classically. reconstruct samples finite shots
+from statevector probabilities for each pixel. This dense simulation does
+not establish a quantum speedup.
 """
 
 import argparse
@@ -37,27 +37,26 @@ BAYER = np.array([[0, 8, 2, 10], [12, 4, 14, 6],
 
 
 def build_phase_oracle(mask):
-    """คืน matrix O ขนาด (16, 16) จาก white mask ขนาด (4, 4).
+    """Return the 16 by 16 phase oracle for a 4 by 4 white-subpixel mask.
 
-    O|x> = (-1)**mask[row, col] |x>. ravel เรียงแถวต่อแถว
-    ให้ index ของ matrix ตรงกับ x = 4 * row + col.
+    O|x> = (-1)**mask[row, col] |x>. Flattening in row order maps each
+    matrix index to x = 4 * row + col.
     """
     phase_signs = 1.0 - 2.0 * mask.ravel()
     return np.diag(phase_signs)
 
 
 def build_diffusion_operator():
-    """คืน D = 2|s><s| - I โดย |s> มี amplitude 1/4 ทั้ง 16 basis states."""
+    """Return D = 2|s><s| - I for uniform |s> over the 16 basis states."""
     return np.full((16, 16), 2 / 16) - np.eye(16)
 
 
 def build_grover_operator(mask):
-    """คืน Q = D @ O ซึ่งใช้ O ก่อน แล้วจึงใช้ D.
+    """Return Q = D @ O, which applies the oracle before diffusion.
 
-    |s> = (1/4) sum_x |x>, D = 2|s><s| - I.
-    แต่ละช่องของ 2|s><s| จึงเท่ากับ 2/16.
-    เก็บ sign ของ D ตามสมการนี้ เพราะ global phase ของ Q
-    กลายเป็น relative phase เมื่อใช้ controlled-Q ใน QPE.
+    For |s> = (1/4) sum_x |x>, every entry of 2|s><s| is 2/16.
+    Preserve the sign of D = 2|s><s| - I. A global phase on Q becomes
+    a relative phase in controlled-Q and changes the QPE readout.
     """
     diffusion = build_diffusion_operator()
     oracle = build_phase_oracle(mask)
@@ -65,12 +64,13 @@ def build_grover_operator(mask):
 
 
 def build_counting_circuit(mask, counter_bits):
-    """สร้าง QPE circuit ที่ยังไม่มี measurement เพื่อใช้ทั้งจำลองและวาดรูป.
+    """Build the unmeasured QPE circuit for statevector simulation.
 
-    counter[j] ควบคุม Q**(2**j). subpixel เริ่มใน |s> ด้วย H ทั้ง 4 เส้น.
-    counter อยู่ index 0..counter_bits-1 และ subpixel อยู่ถัดไป.
-    ใน Qiskit qubit ตัวแรกของ qargs เป็น bit ที่มีนัยสำคัญต่ำสุด.
-    inverse QFT แปลง phase ที่สะสมใน counter เป็น distribution ของค่า y.
+    counter[j] controls Q**(2**j). Hadamard gates prepare |s> on subpixel.
+    Counter qubits occupy indices 0 through counter_bits - 1, followed
+    by the subpixel qubits. The first qarg is the least significant bit
+    in Qiskit's matrix ordering. The inverse QFT converts the accumulated
+    counter phases into a distribution over readout values y.
     """
     counter = QuantumRegister(counter_bits, "counter")
     subpixel = QuantumRegister(4, "subpixel")
@@ -81,12 +81,12 @@ def build_counting_circuit(mask, counter_bits):
     grover_power = build_grover_operator(mask)
     for counter_bit in range(counter_bits):
         exponent = 2 ** counter_bit
-        # qargs ตัวแรกเป็น control จึงเลือกแถว/คอลัมน์เลขคี่ที่ control = 1.
+        # The control is the first qarg, so odd indices select control = 1.
         controlled_grover = np.eye(32, dtype=complex)
         controlled_grover[1::2, 1::2] = grover_power
         gate = UnitaryGate(controlled_grover, label=f"c-Q^{exponent}")
         circuit.append(gate, [counter[counter_bit], *subpixel])
-        # ยกกำลังสองต่อรอบจึงได้ Q, Q², Q⁴, ... โดยไม่คูณซ้ำจากต้น.
+        # Squaring gives the next controlled power without restarting from Q.
         grover_power = grover_power @ grover_power
 
     circuit.append(QFTGate(counter_bits).inverse(), counter)
@@ -94,10 +94,10 @@ def build_counting_circuit(mask, counter_bits):
 
 
 def counter_distribution(mask, counter_bits):
-    """คืน P(y) จำนวน 2**counter_bits ค่า จาก counter register ของ QPE.
+    """Return the 2**counter_bits probabilities P(y) of the QPE counter.
 
-    Statevector ให้ probability ที่แน่นอนก่อนสุ่ม shots.
-    การไม่วัด subpixel คือการรวม probability เหนือ subpixel ทุกสถานะ.
+    Statevector computes probabilities before shot sampling. Restricting
+    qargs to the counter sums probabilities over all subpixel states.
     """
     circuit = build_counting_circuit(mask, counter_bits)
     probabilities = Statevector.from_instruction(circuit).probabilities(
@@ -106,10 +106,10 @@ def counter_distribution(mask, counter_bits):
 
 
 def folded(probabilities):
-    """รวม P(y) กับ P(N-y) เพราะ eigenphase สองฝั่งให้ค่า a เดียวกัน.
+    """Combine P(y) and P(N-y), whose phase branches give the same brightness.
 
-    รับ array ยาว N = 2**counter_bits. คืน array ยาว N/2 + 1.
-    y = 0 และ y = N/2 ไม่มีคู่ จึงไม่บวกซ้ำ.
+    The input has N = 2**counter_bits entries; the result has N/2 + 1.
+    The endpoints y = 0 and y = N/2 have no distinct partner.
     """
     outcome_count = len(probabilities)
     midpoint = outcome_count // 2
@@ -119,12 +119,12 @@ def folded(probabilities):
 
 
 def calibration(counter_bits):
-    """คืน distributions ของ M=0..16, peaks ของแต่ละ M และ lookup[y]=M.
+    """Return distributions, folded peaks, and a count lookup for M = 0..16.
 
-    ใช้ mask ตัวอย่างหนึ่งแบบต่อ M เพราะ distribution ขึ้นกับจำนวนสีขาว.
-    self_test ตรวจสมบัตินี้ด้วย mask ที่สลับตำแหน่ง.
-    สมการ a = sin(pi*y/2**counter_bits)**2 ให้ M ≈ 16*a.
-    lookup เลือก M ที่มี peak ใกล้ y ที่สุด เพื่อ decode ทุก outcome ที่วัดได้.
+    One mask per M suffices because the distribution depends on the white
+    count. self_test checks this with spatial permutations of the masks.
+    The phase relation gives M approximately 16*sin(pi*y/2**counter_bits)**2.
+    For each folded outcome, lookup selects M with the nearest folded peak.
     """
     distributions = []
     for white_count in range(17):
@@ -134,14 +134,14 @@ def calibration(counter_bits):
     if len(np.unique(peaks)) != 17:
         raise ValueError("Use at least 6 counter bits to distinguish all 17 shades.")
     folded_outcomes = np.arange(2 ** (counter_bits - 1) + 1)
-    # [:, None] จัด outcome เป็นคอลัมน์ และ [None, :] จัด 17 peaks เป็นแถว.
+    # Broadcast folded outcomes against all 17 calibration peaks.
     distance_to_each_peak = abs(folded_outcomes[:, None] - peaks[None, :])
     lookup = np.argmin(distance_to_each_peak, axis=1)
     return distributions, peaks, lookup
 
 
 def self_test(counter_bits, distributions, peaks, lookup):
-    """ตรวจการ decode, normalization และ invariance เมื่อสลับตำแหน่งสีขาว."""
+    """Check decoding, normalization, and invariance under mask permutations."""
     rng = np.random.default_rng(21)
     max_error = 0.0
     for count, expected in enumerate(distributions):
@@ -160,10 +160,10 @@ def self_test(counter_bits, distributions, peaks, lookup):
 
 
 def image_tiles(source, size):
-    """คืน bool array [pixel_row, pixel_col, subpixel_row, subpixel_col].
+    """Return a boolean array of 4 by 4 subpixel masks.
 
-    แต่ละ pixel มี mask (4, 4). Bayer dithering แปลง grayscale
-    เป็น subpixel สีขาว/ดำในขั้น classical ก่อนสร้าง oracle.
+    The shape is (size, size, 4, 4). Classical Bayer dithering converts
+    grayscale samples to white or black before oracle construction.
     """
     gray = source.convert("L").resize((size * 4, size * 4), Image.Resampling.NEAREST)
     values = np.asarray(gray, dtype=float) / 255
@@ -173,11 +173,11 @@ def image_tiles(source, size):
 
 
 def reconstruct(tiles, counter_bits, shots, lookup, seed):
-    """คืน brightness จาก shots, brightness จาก exact mode และจำนวน mask.
+    """Return shot-based brightness, exact-mode brightness, and the mask count.
 
-    สองภาพแรกมี shape (size, size). lookup แปลง counter outcome เป็น M
-    แล้ว M/16 เป็น brightness. เลือก outcome ที่พบบ่อยที่สุดจาก shots.
-    cache เก็บ distribution ของ mask ที่เหมือนกันเพื่อลดงาน simulator.
+    Both images have shape (size, size). The most frequent folded outcome
+    decodes through lookup to a white count M, giving brightness M/16.
+    Identical masks share a cached distribution to avoid repeated simulation.
     """
     rng = np.random.default_rng(seed)
     measured = np.empty(tiles.shape[:2], dtype=float)
@@ -226,7 +226,7 @@ def comparison(source, tiles, measured, output):
 
 
 def circle_notation(tiles, measured, output):
-    """วาด oracle state ของ pixel ตัวอย่าง และคืน mask ที่ใช้วาดจริง."""
+    """Draw a selected pixel's oracle state and return its mask metadata."""
     size = len(tiles)
     candidates = np.argwhere((tiles.mean(axis=(2, 3)) > 0.25) &
                              (tiles.mean(axis=(2, 3)) < 0.75))
@@ -268,12 +268,11 @@ def circle_notation(tiles, measured, output):
             "oracle_basis_states": 16, "white_subpixel_mask": mask.astype(int).tolist()}
 
 
-def save_circuit_diagrams(mask, counter_bits, output):
-    """พิมพ์และบันทึก circuit ของ mask เดียวกับภาพ circle notation.
+def print_circuit_diagrams(mask, counter_bits):
+    """Print QPE, one Grover iteration, and the expanded inverse QFT as text.
 
-    QPE ใช้ builder เดียวกับ simulator แต่เพิ่ม measurement ลงในสำเนาเพื่อวาด.
-    PNG ใช้ circuit.draw(output="mpl") ของ Qiskit โดยต้องมี pylatexenc.
-    กล่อง c-Q เป็น dense matrix จริง โดย pin 0 เป็น control ไม่ใช่ target.
+    Measurements appear on a copy of the QPE circuit. The simulation uses
+    the unmeasured circuit from build_counting_circuit.
     """
     counting_circuit = build_counting_circuit(mask, counter_bits)
     measured_circuit = counting_circuit.copy()
@@ -284,8 +283,7 @@ def save_circuit_diagrams(mask, counter_bits, output):
     subpixel = QuantumRegister(4, "subpixel")
     grover_circuit = QuantumCircuit(subpixel, name="One Grover iteration")
     grover_circuit.append(UnitaryGate(build_phase_oracle(mask), label="O"), subpixel)
-    diffusion = build_diffusion_operator()
-    grover_circuit.append(UnitaryGate(diffusion, label="D"), subpixel)
+    grover_circuit.append(UnitaryGate(build_diffusion_operator(), label="D"), subpixel)
 
     counter = QuantumRegister(counter_bits, "counter")
     inverse_qft_circuit = QuantumCircuit(counter, name="Inverse QFT")
@@ -293,31 +291,14 @@ def save_circuit_diagrams(mask, counter_bits, output):
     inverse_qft_circuit = inverse_qft_circuit.decompose(reps=1)
 
     diagrams = [
-        ("qpe_circuit", measured_circuit, "QPE / quantum counting",
-         "H prepares the counter and |s>. Each c-Q^(2^j) is controlled by counter[j].\n"
-         "In each dense c-Q box, pin 0 is the control; pins 1..4 are subpixel targets.\n"
-         "Measurement is shown here; simulation uses the same circuit before measurement."),
-        ("grover_circuit", grover_circuit, "One Grover iteration Q = D O",
-         "Read left to right: O flips white-subpixel phases, then D = 2|s><s| - I.\n"
-         "Subpixel basis index x = 4*row + col; |s> is prepared in the QPE circuit."),
-        ("inverse_qft_circuit", inverse_qft_circuit, "Inverse QFT on the counter",
-         "The inverse QFT block from QPE, expanded into gates.\n"
-         "counter[0] is the least significant bit of the counter outcome."),
+        ("QPE / quantum counting", measured_circuit),
+        ("One Grover iteration Q = D O", grover_circuit),
+        ("Inverse QFT on the counter", inverse_qft_circuit),
     ]
-    saved_files = []
-    for filename, circuit, title, caption in diagrams:
-        circuit_text = str(circuit.draw(output="text", fold=120))
-        print(f"\n{title}\n{caption}\n\n{circuit_text}", flush=True)
-
-        figure = circuit.draw(output="mpl", fold=-1, initial_state=True,
-                              style={"fontsize": 10, "subfontsize": 8})
-        figure.suptitle(title, y=1.02, fontsize=14)
-        figure.text(0.5, -0.02, caption, ha="center", va="top", fontsize=10)
-        png_path = output / f"{filename}.png"
-        figure.savefig(png_path, dpi=160, bbox_inches="tight")
-        plt.close(figure)
-        saved_files.append(png_path.name)
-    return saved_files
+    print("\nControlled Grover blocks use pin 0 as the counter control; "
+          "pins 1 through 4 are subpixel targets.", flush=True)
+    for title, circuit in diagrams:
+        print(f"\n{title}\n{circuit.draw(output='text', fold=120)}", flush=True)
 
 
 def main():
@@ -348,7 +329,7 @@ def main():
     comparison(source, tiles, measured, args.output)
     circles = circle_notation(tiles, measured, args.output)
     representative_mask = np.array(circles["white_subpixel_mask"], dtype=bool)
-    circuit_files = save_circuit_diagrams(representative_mask, args.counter_bits, args.output)
+    print_circuit_diagrams(representative_mask, args.counter_bits)
     metrics = {
         "input": str(args.input.resolve()), "output_size": [args.size, args.size],
         "subpixels_per_pixel": 16, "counter_bits": args.counter_bits,
@@ -360,7 +341,7 @@ def main():
         "measured_pixels_matching_classical": int(np.count_nonzero(measured == classical)),
         "statevector_mode_mae_vs_classical_fraction": float(abs(diagnostic - classical).mean()),
         "elapsed_seconds_including_figures": perf_counter() - started,
-        "self_test": checks, "circle_notation": circles, "circuit_diagrams": circuit_files,
+        "self_test": checks, "circle_notation": circles,
         "method": "Qiskit Statevector QPE on full 16-state Grover operator; finite-shot folded-counter mode decoded by quantum calibration",
         "qualification": "Classical bitmap LUT oracle preparation, dense controlled Grover powers, simulator sampling and exact spatial-mask caching; no hardware run or speedup claim.",
     }
