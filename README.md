@@ -1,13 +1,13 @@
 # Quantum programming
 
-Quantum computing projects and learning experiments. Each project contains its code, example results, and instructions for exploring the work.
+Quantum computing projects and learning experiments. Each project contains its code and example results.
 
 ## Projects
 
 | Project | What it explores | Main tools |
 | --- | --- | --- |
 | [Quantum supersampling](projects/quantum-supersampling/README.md) | Estimate image brightness with Grover operators and quantum phase estimation. | Qiskit, NumPy, Matplotlib |
-| [Grover search](projects/grover/README.md) | Compare amplitude amplification with its analytic probability curve and finite-shot measurements. | NumPy, Matplotlib, Slidev |
+| [Grover search](projects/grover/) | Compare amplitude amplification with its analytic probability curve and finite-shot measurements. | NumPy, Matplotlib |
 | [Quantum self-attention](projects/quantum-self-attention/README.md) | Explore a small quantum self-attention model alongside a classical baseline. | PennyLane, Qiskit, Matplotlib |
 | [Remote-Controlled Randomness](https://github.com/pongsakornsaks-KU/remote-controlled-randomness) | Explore entanglement and randomness through a Qiskit notebook. | Qiskit, Jupyter |
 
@@ -19,7 +19,7 @@ The [QSS comparison](projects/quantum-supersampling/qss_output/comparison.png) s
 
 ![Quantum supersampling comparison](projects/quantum-supersampling/qss_output/comparison.png)
 
-Read the [QSS project guide](projects/quantum-supersampling/README.md) for the mathematical steps. The [Grover plots](projects/grover/README.md) connect repeated iterations to target-state probability.
+Read the [QSS project guide](projects/quantum-supersampling/README.md) for the mathematical steps. The [Grover plots](projects/grover/figures/) connect repeated iterations to target-state probability.
 
 These projects use classical simulation. Their sample outputs do not establish a quantum speedup.
 
@@ -36,7 +36,14 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r projects/quantum-supersampling/requirements.txt
 ```
 
-If `.venv` already exists, use it without recreating it. Each project lists its own dependencies. Install the requirements for the project you want to run. Select this environment as the Jupyter kernel for notebooks. The Grover slide deck uses Node.js separately.
+If `.venv` already exists, use it without recreating it. QSS, quantum self-attention, and the learning experiments include their own requirements files. Select this environment as the Jupyter kernel for notebooks.
+
+For Grover, install NumPy and Matplotlib, then run the plot script from the repository root.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install numpy matplotlib
+.\.venv\Scripts\python.exe projects/grover/scripts/grover_probability.py
+```
 
 ## Repository layout
 

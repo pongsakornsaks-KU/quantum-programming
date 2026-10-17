@@ -11,6 +11,9 @@ __pycache__/
 
 # Independent repository and local reading material
 /projects/remote-controlled-randomness/
+/projects/grover/*
+!/projects/grover/scripts/
+!/projects/grover/figures/
 /references/
 /projects/quantum-self-attention/references/
 *.pdf
