@@ -1,17 +1,17 @@
 # Quantum programming
 
-Quantum computing projects and learning experiments. Each project contains its code and example results.
+This repository contains quantum computing projects and learning experiments. Each project includes code and example results.
 
 ## Projects
 
-| Project | What it explores | Main tools |
+| Project | Description | Main tools |
 | --- | --- | --- |
-| [Quantum supersampling](projects/quantum-supersampling/README.md) | Estimate image brightness with Grover operators and quantum phase estimation. | Qiskit, NumPy, Matplotlib |
-| [Grover search](projects/grover/README.md) | Compare amplitude amplification with its analytic probability curve and finite-shot measurements. | NumPy, Matplotlib |
-| [Quantum self-attention](projects/quantum-self-attention/README.md) | Explore a small quantum self-attention model alongside a classical baseline. | PennyLane, Qiskit, Matplotlib |
-| [Remote-Controlled Randomness](https://github.com/pongsakornsaks-KU/remote-controlled-randomness) | Explore entanglement and randomness through a Qiskit notebook. | Qiskit, Jupyter |
+| [Quantum supersampling](projects/quantum-supersampling/README.md) | Estimates image brightness with Grover operators and quantum phase estimation. | Qiskit, NumPy, Matplotlib |
+| [Grover search](projects/grover/README.md) | Compares amplitude amplification simulations and finite-shot measurements with the analytic probability curve. | NumPy, Matplotlib |
+| [Quantum self-attention](projects/quantum-self-attention/README.md) | Compares a small quantum self-attention model with a classical baseline. | PennyLane, Qiskit, Matplotlib |
+| [Remote-Controlled Randomness](https://github.com/pongsakornsaks-KU/remote-controlled-randomness) | Uses a Qiskit notebook to study entanglement and randomness. | Qiskit, Jupyter |
 
-Remote-Controlled Randomness remains in its own repository. This repository links to it rather than embedding another Git repository. A local checkout can live at `projects/remote-controlled-randomness/`, which is excluded from this repository's Git tracking.
+Remote-Controlled Randomness has its own repository. You can clone it into `projects/remote-controlled-randomness/`. This repository's `.gitignore` excludes that directory.
 
 ## Start with a result
 
@@ -19,13 +19,13 @@ The [QSS comparison](projects/quantum-supersampling/qss_output/comparison.png) s
 
 ![Quantum supersampling comparison](projects/quantum-supersampling/qss_output/comparison.png)
 
-Read the [QSS project guide](projects/quantum-supersampling/README.md) for the mathematical steps. The [Grover plots](projects/grover/figures/) connect repeated iterations to target-state probability.
+Read the [QSS project guide](projects/quantum-supersampling/README.md) for the mathematical steps. The [Grover plots](projects/grover/figures/) show how the target-state probability changes with the number of iterations.
 
 These projects use classical simulation. Their sample outputs do not establish a quantum speedup.
 
 ## Learning material
 
-[Learning experiments](learning/README.md) contain Bloch sphere visualizations, basic circuit notebooks, and classical Fourier and sampling exercises.
+The [learning experiments](learning/README.md) include Bloch sphere visualizations, basic circuit notebooks, and classical Fourier and sampling exercises.
 
 ## Set up Python
 
@@ -36,7 +36,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r projects/quantum-supersampling/requirements.txt
 ```
 
-If `.venv` already exists, use it without recreating it. QSS, quantum self-attention, and the learning experiments include their own requirements files. Select this environment as the Jupyter kernel for notebooks.
+If `.venv` already exists, use it. QSS, quantum self-attention, and the learning experiments each have a requirements file. Install the requirements for the project you want to run. For notebooks, select `.venv` as the Jupyter kernel.
 
 For Grover, install NumPy and Matplotlib, then run the plot script from the repository root.
 
@@ -59,15 +59,4 @@ quantum/
     fourier-and-sampling/
 ```
 
-The local Remote-Controlled Randomness checkout, reading PDFs, environments, caches, and agent working files are excluded by `.gitignore`. Selected result images remain in this repository so visitors can inspect them without running code.
-
-## Get the code
-
-Clone [quantum-programming](https://github.com/pongsakornsaks-KU/quantum-programming), then open the repository directory.
-
-```powershell
-git clone https://github.com/pongsakornsaks-KU/quantum-programming.git
-cd quantum-programming
-```
-
-Use the setup commands above from this directory.
+The `.gitignore` file excludes the local Remote-Controlled Randomness checkout, reference PDFs, environments, caches, and agent working files. The repository includes example result images so you can inspect them without running code.
