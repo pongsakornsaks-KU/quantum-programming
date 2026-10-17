@@ -1,0 +1,84 @@
+{
+  "input": "C:\\Users\\PetetTan\\Desktop\\quantum\\Origami Totoro-Style Paper Creature.png",
+  "output_size": [
+    128,
+    128
+  ],
+  "subpixels_per_pixel": 16,
+  "counter_bits": 6,
+  "qubits_per_circuit": 10,
+  "shots_per_pixel": 128,
+  "seed": 7,
+  "unique_spatial_oracles_simulated": 270,
+  "calibration_circuits": 17,
+  "counter_calibration_peaks": [
+    0,
+    5,
+    7,
+    9,
+    11,
+    12,
+    13,
+    15,
+    16,
+    17,
+    19,
+    20,
+    21,
+    23,
+    25,
+    27,
+    32
+  ],
+  "measured_mae_vs_classical_fraction": 0.0,
+  "measured_max_error_vs_classical_fraction": 0.0,
+  "measured_pixels_matching_classical": 16384,
+  "statevector_mode_mae_vs_classical_fraction": 0.0,
+  "elapsed_seconds_including_figures": 3.171202399998947,
+  "self_test": {
+    "counts_checked": 17,
+    "permuted_masks_checked": 17,
+    "max_probability_error_after_permutation": 1.1102230246251565e-16
+  },
+  "circle_notation": {
+    "pixel_xy": [
+      64,
+      65
+    ],
+    "oracle_amplitude_magnitude": 0.25,
+    "oracle_basis_states": 16,
+    "white_subpixel_mask": [
+      [
+        1,
+        1,
+        1,
+        1
+      ],
+      [
+        0,
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        1,
+        1,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "circuit_diagrams": [
+    "qpe_circuit.png",
+    "grover_circuit.png",
+    "inverse_qft_circuit.png"
+  ],
+  "method": "Qiskit Statevector QPE on full 16-state Grover operator; finite-shot folded-counter mode decoded by quantum calibration",
+  "qualification": "Classical bitmap LUT oracle preparation, dense controlled Grover powers, simulator sampling and exact spatial-mask caching; no hardware run or speedup claim."
+}

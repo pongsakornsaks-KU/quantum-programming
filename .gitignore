@@ -1,0 +1,32 @@
+# Local tools and environments
+/.agents/
+/.audit/
+/AGENTS.md
+/skills-lock.json
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Independent repository and local reading material
+/projects/remote-controlled-randomness/
+/references/
+/projects/quantum-self-attention/references/
+*.pdf
+
+# Frontend dependencies and generated builds
+node_modules/
+dist/
+.slidev/
+.vite-inspect/
+.remote-assets/
+*.local
+
+# Local configuration and unpublished notes
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+/raw/
