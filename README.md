@@ -7,7 +7,7 @@ Quantum computing projects and learning experiments. Each project contains its c
 | Project | What it explores | Main tools |
 | --- | --- | --- |
 | [Quantum supersampling](projects/quantum-supersampling/README.md) | Estimate image brightness with Grover operators and quantum phase estimation. | Qiskit, NumPy, Matplotlib |
-| [Grover search](projects/grover/) | Compare amplitude amplification with its analytic probability curve and finite-shot measurements. | NumPy, Matplotlib |
+| [Grover search](projects/grover/README.md) | Compare amplitude amplification with its analytic probability curve and finite-shot measurements. | NumPy, Matplotlib |
 | [Quantum self-attention](projects/quantum-self-attention/README.md) | Explore a small quantum self-attention model alongside a classical baseline. | PennyLane, Qiskit, Matplotlib |
 | [Remote-Controlled Randomness](https://github.com/pongsakornsaks-KU/remote-controlled-randomness) | Explore entanglement and randomness through a Qiskit notebook. | Qiskit, Jupyter |
 
