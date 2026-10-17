@@ -1,0 +1,10 @@
+# Local LaTeX sources and their build assets
+/qss_output/latex/
+/report/latex/
+
+# Local illustrated walkthrough
+/qss_output/quantum_supersampling_explained.html
+
+# Keep the Thai report local and publish only the English report
+/report/report.pdf
+!/report/report_en.pdf
